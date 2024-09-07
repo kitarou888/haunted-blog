@@ -11,7 +11,7 @@ class BlogsController < ApplicationController
   end
 
   def show
-    return unless @blog.secret && !(current_user && @blog.user == current_user)
+    return unless @blog.secret && !(current_user && @blog.owned_by?(current_user))
 
     raise ActiveRecord::RecordNotFound
   end
@@ -57,7 +57,7 @@ class BlogsController < ApplicationController
   end
 
   def validate_author
-    return unless @blog.user != current_user
+    return if @blog.owned_by?(current_user)
 
     raise ActiveRecord::RecordNotFound
   end
