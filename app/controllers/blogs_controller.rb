@@ -3,14 +3,14 @@
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
-  before_action :set_blog, only: %i[show edit update destroy]
-  before_action :validate_author, only: %i[edit update destroy]
+  before_action :set_blog, only: %i[edit update destroy]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
   def show
+    @blog = Blog.find(params[:id])
     return unless @blog.secret && !(current_user && @blog.owned_by?(current_user))
 
     raise ActiveRecord::RecordNotFound
@@ -49,7 +49,7 @@ class BlogsController < ApplicationController
   private
 
   def set_blog
-    @blog = Blog.find(params[:id])
+    @blog = current_user.blogs.find(params[:id])
   end
 
   def blog_params
@@ -58,11 +58,5 @@ class BlogsController < ApplicationController
     else
       params.require(:blog).permit(:title, :content, :secret)
     end
-  end
-
-  def validate_author
-    return if @blog.owned_by?(current_user)
-
-    raise ActiveRecord::RecordNotFound
   end
 end
