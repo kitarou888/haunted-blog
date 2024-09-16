@@ -53,10 +53,12 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
+    base_params = params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+
     if current_user.premium
-      params.require(:blog).permit(:title, :content, :secret, :random_eyecatch)
+      base_params
     else
-      params.require(:blog).permit(:title, :content, :secret)
+      base_params.slice(:title, :content, :secret)
     end
   end
 end
